@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우면도서관 어린이 북큐레이션</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", Arial, sans-serif;
+      background: #f7f2ea;
+      color: #2d2d2d;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .page-title h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      color: #365c4f;
+    }
+
+    .page-title p {
+      margin: 0;
+      color: #666;
+      font-size: 16px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* 어린이 방 */
+    .room {
+      position: relative;
+      min-height: 720px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #fff7ef;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      border: 1px solid #eadfce;
+    }
+
+    .wall {
+      position: absolute;
+      inset: 0 0 120px 0;
+      background: linear-gradient(to bottom, #fff7ef 0%, #fff3e4 100%);
+    }
+
+    .floor {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 120px;
+      background: repeating-linear-gradient(
+        90deg,
+        #d6aa74 0px,
+        #d6aa74 60px,
+        #c99863 60px,
+        #c99863 64px
+      );
+      border-top: 4px solid #b88450;
+    }
+
+    /* 창문 */
+    .window {
+      position: absolute;
+      top: 38px;
+      left: 40px;
+      width: 170px;
+      height: 150px;
+      background: #d9f0ff;
+      border: 10px solid #f8f8f8;
+      border-radius: 16px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .window::before,
+    .window::after {
+      content: "";
+      position: absolute;
+      background: rgba(255,255,255,0.95);
+    }
+
+    .window::before {
+      width: 8px;
+      height: 100%;
+      left: calc(50% - 4px);
+      top: 0;
+    }
+
+    .window::after {
+      height: 8px;
+      width: 100%;
+      left: 0;
+      top: calc(50% - 4px);
+    }
+
+    .sun {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      width: 26px;
+      height: 26px;
+      background: #ffd95e;
+      border-radius: 50%;
+    }
+
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50px;
+      opacity: 0.95;
+    }
+
+    .cloud.c1 {
+      width: 50px;
+      height: 18px;
+      left: 20px;
+      top: 35px;
+    }
+
+    .cloud.c2 {
+      width: 62px;
+      height: 20px;
+      left: 80px;
+      top: 86px;
+    }
+
+    /* 침대 */
+    .bed {
+      position: absolute;
+      left: 30px;
+      bottom: 135px;
+      width: 260px;
+      height: 155px;
+    }
+
+    .bed-frame {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 85px;
+      background: #d7a46c;
+      border-radius: 18px 18px 12px 12px;
+      border: 3px solid #b7834f;
+    }
+
+    .bed-head {
+      position: absolute;
+      left: 0;
+      bottom: 50px;
+      width: 24px;
+      height: 88px;
+      background: #c58d56;
+      border-radius: 12px;
+    }
+
+    .mattress {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 48px;
+      height: 52px;
+      background: #fff;
+      border-radius: 16px;
+      border: 2px solid #ececec;
+    }
+
+    .blanket {
+      position: absolute;
+      left: 35px;
+      right: 24px;
+      bottom: 48px;
+      height: 42px;
+      background: #9fd0c6;
+      border-radius: 18px;
+    }
+
+    .pillow {
+      position: absolute;
+      left: 34px;
+      bottom: 70px;
+      width: 58px;
+      height: 28px;
+      background: #fff7d8;
+      border-radius: 12px;
+      border: 2px solid #efead0;
+    }
+
+    /* 책상 */
+    .desk {
+      position: absolute;
+      left: 330px;
+      bottom: 145px;
+      width: 190px;
+      height: 110px;
+    }
+
+    .desk-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 18px;
+      background: #d1a06f;
+      border-radius: 10px;
+      border: 2px solid #b78454;
+    }
+
+    .desk-leg {
+      position: absolute;
+      top: 16px;
+      width: 10px;
+      height: 92px;
+      background: #b78454;
+      border-radius: 8px;
+    }
+
+    .desk-leg.left { left: 15px; }
+    .desk-leg.right { right: 15px; }
+
+    .chair {
+      position: absolute;
+      left: 50px;
+      top: 44px;
+      width: 70px;
+      height: 60px;
+    }
+
+    .chair-back {
+      width: 70px;
+      height: 34px;
+      background: #f3bc77;
+      border-radius: 10px;
+      border: 2px solid #dd9e4f;
+    }
+
+    .chair-seat {
+      margin: 6px auto 0;
+      width: 58px;
+      height: 14px;
+      background: #f3bc77;
+      border-radius: 8px;
+      border: 2px solid #dd9e4f;
+    }
+
+    .lamp {
+      position: absolute;
+      right: 16px;
+      top: -34px;
+      width: 42px;
+      height: 60px;
+    }
+
+    .lamp-head {
+      width: 34px;
+      height: 22px;
+      background: #7cc4b8;
+      border-radius: 16px 16px 8px 8px;
+      margin-left: 4px;
+    }
+
+    .lamp-neck {
+      width: 6px;
+      height: 24px;
+      background: #6d7c83;
+      margin: 0 auto;
+    }
+
+    .lamp-base {
+      width: 30px;
+      height: 8px;
+      background: #6d7c83;
+      border-radius: 999px;
+      margin: 0 auto;
+    }
+
+    /* 서가 */
+    .bookshelf {
+      position: absolute;
+      right: 28px;
+      bottom: 135px;
+      width: 300px;
+      height: 500px;
+      background: #e0b07a;
+      border: 5px solid #b88450;
+      border-radius: 18px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .shelf-row {
+      flex: 1;
+      border-bottom: 4px solid #b88450;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 0 4px 10px;
+    }
+
+    .shelf-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .book {
+      border: none;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      color: #fff;
+      font-weight: 700;
+      font-size: 11px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      text-align: center;
+      padding: 6px 4px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .book:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+    }
+
+    .book:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+
+    .book.b1 { width: 34px; height: 92px; background: #ef7f6d; }
+    .book.b2 { width: 28px; height: 112px; background: #f1ba59; }
+    .book.b3 { width: 38px; height: 96px; background: #7cb7f0; }
+    .book.b4 { width: 30px; height: 120px; background: #7fc69a; }
+    .book.b5 { width: 36px; height: 88px; background: #ba8cf0; }
+    .book.b6 { width: 26px; height: 108px; background: #f28ea6; }
+    .book.b7 { width: 42px; height: 118px; background: #57b7b2; }
+    .book.b8 { width: 30px; height: 98px; background: #f08f4f; }
+    .book.b9 { width: 34px; height: 106px; background: #6b8df2; }
+    .book.b10 { width: 28px; height: 92px; background: #8ecf63; }
+    .book.b11 { width: 38px; height: 114px; background: #c57a61; }
+    .book.b12 { width: 32px; height: 102px; background: #de78c8; }
+
+    .room-label {
+      position: absolute;
+      left: 28px;
+      top: 220px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid #efe4d5;
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+    }
+
+    .room-label strong {
+      display: block;
+      color: #365c4f;
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .room-label span {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* 추천 도서 패널 */
+    .recommend-panel {
+      background: #fff;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      border: 1px solid #eadfce;
+      position: sticky;
+      top: 20px;
+    }
+
+    .recommend-panel h2 {
+      margin: 0 0 10px;
+      color: #365c4f;
+      font-size: 28px;
+    }
+
+    .recommend-panel .guide {
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .book-card {
+      background: #fffaf4;
+      border: 1px solid #ecdcc8;
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .book-badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #e6f2ee;
+      color: #365c4f;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .book-title {
+      font-size: 28px;
+      margin: 0 0 10px;
+      line-height: 1.3;
+      color: #2d2d2d;
+    }
+
+    .book-author {
+      margin: 0 0 14px;
+      color: #7a6a5c;
+      font-weight: 600;
+    }
+
+    .book-desc {
+      line-height: 1.7;
+      color: #444;
+      font-size: 15px;
+    }
+
+    .book-quote {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px dashed #d8c1a6;
+      color: #555;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .catalog-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 24px;
+      width: 100%;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: #365c4f;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      transition: background 0.2s ease;
+    }
+
+    .catalog-btn:hover {
+      background: #29463c;
+    }
+
+    .empty-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+      text-align: center;
+      line-height: 1.7;
+      color: #777;
+      background: #fffaf4;
+      border: 1px dashed #d7c6b4;
+      border-radius: 22px;
+      padding: 20px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #7f7f7f;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .recommend-panel {
+        position: static;
+      }
+
+      .room {
+        min-height: 760px;
+      }
+
+      .bookshelf {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        bottom: 125px;
+        width: calc(100% - 50px);
+        max-width: 340px;
+        height: 340px;
+      }
+
+      .bed {
+        left: 18px;
+        width: 220px;
+      }
+
+      .desk {
+        left: auto;
+        right: 16px;
+        width: 150px;
+      }
+
+      .room-label {
+        top: 205px;
+        left: 18px;
+        right: 18px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 16px;
+      }
+
+      .page-title h1 {
+        font-size: 28px;
+      }
+
+      .room {
+        min-height: 820px;
+      }
+
+      .window {
+        width: 140px;
+        height: 126px;
+      }
+
+      .bed {
+        left: 14px;
+        width: 190px;
+        bottom: 420px;
+      }
+
+      .desk {
+        right: 14px;
+        width: 130px;
+        bottom: 430px;
+      }
+
+      .bookshelf {
+        bottom: 135px;
+        height: 250px;
+      }
+
+      .book-title {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="page-title">
+      <h1>우면도서관 어린이 북큐레이션</h1>
+      <p>어린이 방 속 서가의 책을 눌러 추천 도서를 만나보세요.</p>
+    </div>
+
+    <div class="layout">
+      <!-- 왼쪽: 어린이 방 -->
+      <section class="room">
+        <div class="wall"></div>
+        <div class="floor"></div>
+
+        <div class="window">
+          <div class="sun"></div>
+          <div class="cloud c1"></div>
+          <div class="cloud c2"></div>
+        </div>
+
+        <div class="room-label">
+          <strong>책방처럼 꾸민 어린이 방</strong>
+          <span>
+            창문, 침대, 책걸상, 책이 가득한 서가를 표현했습니다.<br />
+            서가 속 책을 클릭하면 오른쪽에 추천 도서가 나타납니다.
+          </span>
+        </div>
+
+        <div class="bed">
+          <div class="bed-head"></div>
+          <div class="mattress"></div>
+          <div class="blanket"></div>
+          <div class="pillow"></div>
+          <div class="bed-frame"></div>
+        </div>
+
+        <div class="desk">
+          <div class="lamp">
+            <div class="lamp-head"></div>
+            <div class="lamp-neck"></div>
+            <div class="lamp-base"></div>
+          </div>
+          <div class="desk-top"></div>
+          <div class="desk-leg left"></div>
+          <div class="desk-leg right"></div>
+          <div class="chair">
+            <div class="chair-back"></div>
+            <div class="chair-seat"></div>
+          </div>
+        </div>
+
+        <div class="bookshelf">
+          <div class="shelf-row">
+            <button class="book b1" data-book="0">책1</button>
+            <button class="book b2" data-book="1">책2</button>
+            <button class="book b3" data-book="2">책3</button>
+            <button class="book b4" data-book="3">책4</button>
+          </div>
+          <div class="shelf-row">
+            <button class="book b5" data-book="4">책5</button>
+            <button class="book b6" data-book="5">책6</button>
+            <button class="book b7" data-book="6">책7</button>
+            <button class="book b8" data-book="7">책8</button>
+          </div>
+          <div class="shelf-row">
+            <button class="book b9" data-book="8">책9</button>
+            <button class="book b10" data-book="9">책10</button>
+            <button class="book b11" data-book="10">책11</button>
+            <button class="book b12" data-book="11">책12</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 오른쪽: 추천 도서 -->
+      <aside class="recommend-panel">
+        <h2>추천 도서</h2>
+        <p class="guide">
+          서가의 책을 클릭하면 추천 도서가 한 권씩 나옵니다.<br />
+          제목, 저자, 소개, 도서관 소장정보 링크를 확인할 수 있어요.
+        </p>
+
+        <div id="bookDisplay" class="empty-card">
+          아직 선택한 책이 없어요.<br />
+          왼쪽 서가에서 책을 클릭해 주세요.
+        </div>
+
+        <div class="footer-note">
+          ※ 아래 도서 데이터는 예시입니다.<br />
+          제목, 저자, 소개, 소장정보 링크를 실제 북큐레이션 도서로 바꿔 사용하시면 됩니다.
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const recommendedBooks = [
+      {
+        title: "강아지똥",
+        author: "권정생 글 · 정승각 그림",
+        description: "작은 존재도 소중한 쓰임이 있다는 것을 따뜻하게 전하는 그림책입니다. 어린이들이 자존감과 배려의 마음을 자연스럽게 느낄 수 있습니다.",
+        quote: "‘나는 무엇이 될 수 있을까?’라는 질문을 다정하게 건네는 책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "알사탕",
+        author: "백희나",
+        description: "신비한 알사탕을 통해 다른 존재의 속마음을 듣게 되는 이야기입니다. 공감과 소통의 의미를 재미있게 풀어낸 그림책입니다.",
+        quote: "친구 관계와 마음 읽기를 생각해 볼 수 있는 책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "감기 걸린 물고기",
+        author: "박정섭",
+        description: "엉뚱하고 상상력 가득한 이야기 전개가 돋보이는 책입니다. 어린이들의 호기심과 웃음을 이끌어내기에 좋습니다.",
+        quote: "유쾌한 상상과 말놀이가 살아 있는 책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "수박 수영장",
+        author: "안녕달",
+        description: "한여름 무더위를 시원하게 날려주는 상상력이 가득한 그림책입니다. 감각적인 그림과 즐거운 분위기가 매력적입니다.",
+        quote: "계절 큐레이션에 잘 어울리는 인기 그림책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "엄마를 구출하라!",
+        author: "권태성",
+        description: "모험과 상상이 결합된 이야기로, 어린이 독자들이 흥미롭게 읽을 수 있는 책입니다. 가족과 용기에 대해 생각해 볼 수 있습니다.",
+        quote: "흥미로운 전개로 몰입감 있게 읽히는 책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "이파라파냐무냐무",
+        author: "이지은",
+        description: "재미있는 말맛과 독특한 캐릭터가 살아 있는 그림책입니다. 읽어주는 시간에 활용하기 좋고 아이들의 반응도 좋은 편입니다.",
+        quote: "함께 읽을수록 더 재미있는 그림책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "긴긴밤",
+        author: "루리",
+        description: "조금 더 깊이 있는 감정을 다루는 작품으로, 어린이와 청소년이 함께 읽기 좋습니다. 우정과 상실, 희망의 의미를 생각하게 합니다.",
+        quote: "감동과 여운이 오래 남는 이야기",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "나는 3학년 2반 7번 애벌레",
+        author: "김원아",
+        description: "학교생활과 성장의 이야기를 담아 어린이들이 친근하게 읽을 수 있는 책입니다. 웃음과 공감 요소가 잘 살아 있습니다.",
+        quote: "학교생활 주제 북큐레이션에 활용하기 좋은 책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "아낌없이 주는 나무",
+        author: "셸 실버스타인",
+        description: "고전이 된 명작으로, 사랑과 관계에 대해 여러 방식으로 생각해 볼 수 있는 책입니다. 세대가 함께 읽기에도 좋습니다.",
+        quote: "짧지만 깊은 울림을 주는 고전",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "구름빵",
+        author: "백희나",
+        description: "구름으로 만든 빵을 먹고 하늘을 나는 상상력 가득한 이야기입니다. 어린이들이 쉽고 즐겁게 접근할 수 있는 대표 그림책입니다.",
+        quote: "상상력과 따뜻한 가족 이야기가 어우러진 책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "이상한 엄마",
+        author: "백희나",
+        description: "아픈 아이를 위해 찾아온 이상한 엄마의 이야기를 통해 돌봄과 따뜻함을 전하는 그림책입니다.",
+        quote: "돌봄과 사랑의 메시지를 담은 그림책",
+        url: "https://umyeon.seocholib.or.kr/"
+      },
+      {
+        title: "강아지 복덕방",
+        author: "윤여림 글 · 안녕달 그림",
+        description: "친근하고 다정한 정서가 담긴 작품으로, 어린이들에게 편안한 독서 경험을 제공합니다.",
+        quote: "정서가 따뜻한 그림책 큐레이션에 적합한 책",
+        url: "https://umyeon.seocholib.or.kr/"
+      }
+    ];
+
+    const bookDisplay = document.getElementById("bookDisplay");
+    const bookButtons = document.querySelectorAll(".book");
+
+    function renderBookCard(book) {
+      bookDisplay.className = "book-card";
+      bookDisplay.innerHTML = `
+        <div>
+          <div class="book-badge">우면도서관 추천도서</div>
+          <h3 class="book-title">${book.title}</h3>
+          <p class="book-author">${book.author}</p>
+          <p class="book-desc">${book.description}</p>
+          <div class="book-quote">${book.quote}</div>
+        </div>
+        <a class="catalog-btn" href="${book.url}" target="_blank" rel="noopener noreferrer">
+          도서관 소장정보 보기
+        </a>
+      `;
+    }
+
+    bookButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const index = Number(button.dataset.book);
+        const selectedBook = recommendedBooks[index];
+        renderBookCard(selectedBook);
+      });
+    });
+  </script>
+</body>
+</html>
